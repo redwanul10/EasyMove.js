@@ -3,12 +3,12 @@
 	
 	(function(){
 	
-	// default opions.....
+	
 	var defaults = {
 	dropAnimation : true,
 	animationClass : "fadein",
 	cloneOpacity :0.8,
-	transition:"0.4s",
+	transition:"0.3s",
 	};
 	
 	var dragAndDrop = function(element,option = {}){
@@ -27,6 +27,13 @@
 		// dragStart Function for Mousedown and Touchstart
 		this.dragStart = function(event){
 		
+			event.preventDefault();
+			if(event.type == "touchstart"){
+				if(event.touches.length > 1){
+					return;
+				}
+			}
+			
 			// Get mouse position on mouse down
 			this.mouseX = event.pageX || event.touches[0].pageX;
 			this.mouseY = event.pageY || event.touches[0].pageY;
@@ -105,18 +112,21 @@
 				return ;
 			}
 			// Delete clone element
-			this.clone.parentNode.removeChild(this.clone);
+			this.element.removeChild(this.clone);
 			
 			// Display FirstElement
 			this.FirstElement.style.opacity = "1";
 			this.isMoving = false;
 			
 			// Get element from Mouse point or Touch point
-			var element = document.elementFromPoint(this.moveX,this.movey);
 			
+			// Get the LastElement acroding to Mouse x,y position
+			var X = this.moveX - window.pageXOffset;
+			var Y = this.movey - window.pageYOffset;
+			this.LastElement = document.elementFromPoint(X,Y);
+				
 			// replace element
-			this.checkAndReplace(element);
-			
+			this.checkAndReplace();
 		};
 		
 		
@@ -124,13 +134,8 @@
 		
 		this.checkAndReplace = function mouseover(element){
 		
-			
-		
 			if(this.start && !this.isMoving){
 			
-				// Get FirstElement on mouseover
-				this.LastElement = element;
-				
 				// If LastElement dont have "box" class
 				// Find the parent which have "box" class
 				if(!this.LastElement.classList.contains("box")){
@@ -146,6 +151,9 @@
 					
 					this.start        = false;
 					this.FirstElement = null;
+					this.LastElement = null;
+					this.moveX = null;
+					this.movey = null;
 					return ;
 				}
 					
@@ -166,8 +174,8 @@
 					this.start = false;
 					this.LastElement = null;
 					this.FirstElement = null;
-					
-				
+					this.moveX = null;
+					this.movey = null;
 			}
 			
 		};
